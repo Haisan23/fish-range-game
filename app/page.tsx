@@ -1,13 +1,22 @@
+import { redirect } from "next/navigation";
+import Footer from "@/components/Footer";
+import NavBar from "@/components/NavBar";
+import ShootingGame from "@/components/ShootingGame";
+import { getSessionUser } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
+  const username = getSessionUser();
+  if (!username) redirect("/login"); // the game requires a login
+
   return (
-    <main className="mx-auto max-w-3xl p-10">
-      <div className="card space-y-3 p-8">
-        <h1 className="text-3xl font-extrabold text-white">
-          Fish<span className="text-amber-400">Range</span>
-        </h1>
-        <p className="text-slate-400">Project setup complete. The game is coming next.</p>
-        <button className="btn-primary">It works</button>
-      </div>
-    </main>
+    <>
+      <NavBar username={username} />
+      <main className="px-4 py-5">
+        <ShootingGame username={username} />
+      </main>
+      <Footer />
+    </>
   );
 }
