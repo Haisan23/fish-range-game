@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+.env
+.env.local
+.env*.local
+# local user + score data (created at runtime)
+data/
+*.log
+.DS_Store
+next-env.d.ts
