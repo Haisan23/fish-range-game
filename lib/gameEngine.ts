@@ -100,7 +100,7 @@ export function levelConfig(level: number, apiFish: number, apiChest: number): L
     chests: clamp(Math.round(apiChest), 0, 4),
     speed: Math.min(340, 100 + (level - 1) * 25), // faster each level
     radius: Math.max(20, 36 - (level - 1) * 2), // smaller each level
-    gap: Math.max(1.8, 5 - (level - 1) * 0.35), // shot clock shrinks 5s -> 1.8s
+    gap: Math.max(2.2, 5 - (level - 20) * 0.35), // shot clock shrinks 5s -> 1.8s
     bob: level >= 3 ? Math.min(34, (level - 2) * 9) : 0, // wobbling targets from level 3
     decoyChance: level >= 4 ? Math.min(0.35, 0.12 + (level - 4) * 0.05) : 0, // bombs from level 4
     maxOnScreen: Math.min(6, 3 + Math.floor(level / 2)),
