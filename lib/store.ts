@@ -1,8 +1,8 @@
 // Storage backend selector.
 // When MONGODB_URI is set, use MongoDB Atlas. Otherwise fall back to local JSON files.
-import type { ScoreEntry, User } from "./types";
+import type { ScoreEntry, User, UserScoresDoc } from "./types";
 
-export type { ScoreEntry, User };
+export type { ScoreEntry, User, UserScoresDoc };
 
 let backend: "json" | "mongo" = "json";
 let mongoModule: typeof import("./mongo") | null = null;

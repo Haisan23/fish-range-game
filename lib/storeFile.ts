@@ -2,11 +2,11 @@
 // Used automatically when MONGODB_URI is NOT set, so the app always runs locally.
 import { promises as fs } from "fs";
 import path from "path";
-import type { ScoreEntry, User } from "./types";
+import type { ScoreEntry, ScoreRun, User, UserScoresDoc } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
-const SCORES_FILE = path.join(DATA_DIR, "scores.json");
+const SCORES_FILE = path.join(DATA_DIR, "userScores.json");
 
 async function readJson<T>(file: string, fallback: T): Promise<T> {
   try {
@@ -36,12 +36,34 @@ export async function addUser(user: User): Promise<void> {
 }
 
 export async function addScore(entry: ScoreEntry): Promise<void> {
-  const scores = await readJson<ScoreEntry[]>(SCORES_FILE, []);
-  scores.push(entry);
-  await writeJson(SCORES_FILE, scores);
+  const docs = await readJson<UserScoresDoc[]>(SCORES_FILE, []);
+  const run: ScoreRun = {
+    score: entry.score,
+    level: entry.level,
+    accuracy: entry.accuracy,
+    date: entry.date,
+  };
+  const doc = docs.find((d) => d.username === entry.username);
+  if (doc) {
+    doc.scores.push(run);
+  } else {
+    docs.push({ username: entry.username, scores: [run] });
+  }
+  await writeJson(SCORES_FILE, docs);
 }
 
 export async function topScores(limit = 10): Promise<ScoreEntry[]> {
-  const scores = await readJson<ScoreEntry[]>(SCORES_FILE, []);
-  return scores.sort((a, b) => b.score - a.score).slice(0, limit);
+  const docs = await readJson<UserScoresDoc[]>(SCORES_FILE, []);
+  const entries: ScoreEntry[] = [];
+  for (const doc of docs) {
+    if (!doc.scores?.length) continue;
+    let best: ScoreRun = doc.scores[0];
+    for (const s of doc.scores) {
+      if (s.score > best.score) best = s;
+    }
+    entries.push({ username: doc.username, ...best });
+  }
+  return entries
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
 }

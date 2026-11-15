@@ -1,7 +1,7 @@
 // MongoDB Atlas storage backend.
 // Used automatically when MONGODB_URI is set.
 import { MongoClient, Db, Collection, ObjectId } from "mongodb";
-import type { ScoreEntry, User } from "./types";
+import type { ScoreEntry, ScoreRun, User, UserScoresDoc } from "./types";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
@@ -40,14 +40,14 @@ export async function usersCollection(): Promise<Collection<User>> {
   return db.collection<User>("users");
 }
 
-export async function scoresCollection(): Promise<Collection<ScoreEntry>> {
+export async function userScoresCollection(): Promise<Collection<UserScoresDoc>> {
   const db = await connectDb();
-  return db.collection<ScoreEntry>("scores");
+  return db.collection<UserScoresDoc>("userScores");
 }
 
 export async function ensureIndexes(): Promise<void> {
   const users = await usersCollection();
-  const scores = await scoresCollection();
+  const scores = await userScoresCollection();
 
   try {
     await users.createIndex({ username: 1 }, { unique: true, name: "username_unique" });
@@ -56,7 +56,7 @@ export async function ensureIndexes(): Promise<void> {
   }
 
   try {
-    await scores.createIndex({ score: -1 }, { name: "score_desc" });
+    await scores.createIndex({ username: 1 }, { unique: true, name: "username_unique" });
   } catch {
     // Index already exists
   }
@@ -89,20 +89,45 @@ export async function addUser(user: User): Promise<void> {
   }
 }
 
+/**
+ * Save a score for a user by pushing it into their embedded scores array.
+ * Uses an upsert so the first score for a user creates the document.
+ */
 export async function addScore(entry: ScoreEntry): Promise<void> {
-  const scores = await scoresCollection();
-  await scores.insertOne({
-    ...entry,
-    _id: new ObjectId(),
-  });
+  const scores = await userScoresCollection();
+  const run: ScoreRun = {
+    score: entry.score,
+    level: entry.level,
+    accuracy: entry.accuracy,
+    date: entry.date,
+  };
+  await scores.updateOne(
+    { username: entry.username },
+    { $push: { scores: run } },
+    { upsert: true }
+  );
 }
 
+/**
+ * Return the top N scores across all users, deduplicated by username
+ * (each user contributes only their best score).
+ */
 export async function topScores(limit = 10): Promise<ScoreEntry[]> {
-  const scores = await scoresCollection();
-  const docs = await scores
-    .find({})
-    .sort({ score: -1 })
-    .limit(limit)
-    .toArray();
-  return docs.map((d) => toPlain(d)!);
+  const scores = await userScoresCollection();
+  const docs = await scores.find({}).toArray();
+
+  const entries: ScoreEntry[] = [];
+  for (const doc of docs) {
+    const plain = toPlain(doc);
+    if (!plain || !plain.scores?.length) continue;
+    let best: ScoreRun = plain.scores[0];
+    for (const s of plain.scores) {
+      if (s.score > best.score) best = s;
+    }
+    entries.push({ username: plain.username, ...best });
+  }
+
+  return entries
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
 }
