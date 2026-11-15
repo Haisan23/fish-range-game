@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectDB, mongoEnabled } from "../../../lib/db";
+import { connectDB, mongoEnabled } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +10,7 @@ export async function GET() {
   }
   try {
     const m = await connectDB();
-    return NextResponse.json({ backend: "mongodb", connected: true, database: m.connection.name });
+    return NextResponse.json({ backend: "mongodb", connected: true, database: m.databaseName });
   } catch (err) {
     return NextResponse.json(
       { backend: "mongodb", connected: false, error: err instanceof Error ? err.message : "unknown error" },
