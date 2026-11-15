@@ -8,15 +8,20 @@
 
 body {
   @apply bg-slate-950 text-slate-200;
-  background-image:
-    radial-gradient(1100px 520px at 15% -10%, rgba(245, 158, 11, 0.10), transparent 60%),
-    radial-gradient(900px 480px at 100% 0%, rgba(56, 189, 248, 0.08), transparent 55%);
+  background-image: url("/assets/images/bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
+  background-blend-mode: overlay, luminosity;
+  /* Darken the image a touch so text stays readable */
+  --bg-overlay: rgba(2, 6, 23, 0.55);
+  background-color: var(--bg-overlay);
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-white/10 bg-slate-900/70 shadow-lg shadow-black/20 backdrop-blur;
+    @apply rounded-2xl border border-white/10 bg-slate-900/55 shadow-lg shadow-black/20 backdrop-blur;
   }
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-amber-500 px-5 py-2.5 text-sm font-semibold text-slate-900 shadow-md shadow-amber-500/20 transition hover:from-amber-300 hover:to-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 disabled:cursor-not-allowed disabled:opacity-50;
@@ -30,4 +35,9 @@ body {
   .kbd {
     @apply rounded border border-white/20 bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-slate-200;
   }
+}
+
+/* Semi-transparent surfaces so the background image shows through */
+.glass {
+  @apply rounded-2xl border border-white/10 bg-slate-900/50 shadow-lg shadow-black/20 backdrop-blur;
 }
