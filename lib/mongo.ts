@@ -61,7 +61,9 @@ export async function ensureIndexes(): Promise<void> {
     // Index already exists
   }
 }
-
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 function toPlain<T>(doc: T | null): T | undefined {
   if (!doc) return undefined;
   const { _id, ...rest } = doc as any;
@@ -70,7 +72,7 @@ function toPlain<T>(doc: T | null): T | undefined {
 
 export async function findUser(username: string): Promise<User | undefined> {
   const users = await usersCollection();
-  const user = await users.findOne({ username: new RegExp(`^${username}$`, "i") });
+  const user = await users.findOne({ username: new RegExp(`^${escapeRegExp(username)}$`, "i") });
   return toPlain(user);
 }
 
