@@ -16,7 +16,7 @@ export default function LoginPage() {
   if (getSessionUser()) redirect("/");
   return (
     <main className="mx-auto grid min-h-screen max-w-6xl items-center gap-10 px-4 py-10 lg:grid-cols-2">
-      <section className="space-y-8">
+      <section className="space-y-8 rounded-3xl border border-white/25 bg-white/1 p-8 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.35),inset_0_-1px_0_rgba(255,255,255,0.08)]">
         <div className="flex items-center gap-3">
           <Logo className="h-12 w-12" />
           <span className="text-3xl font-extrabold tracking-tight text-white">
