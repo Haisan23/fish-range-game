@@ -30,7 +30,7 @@ export default async function ScoreboardPage() {
             <h1 className="flex items-center gap-2 text-3xl font-extrabold text-white">
               <Icon name="trophy" className="h-7 w-7 text-amber-400" /> Scoreboard
             </h1>
-            <p className="mt-1 text-slate-400">The ten best runs across all players.</p>
+            <p className="mt-1 text-slate-400">Each player's best score, highest first.</p>
           </div>
           <Link href="/" className="btn-primary">Play now</Link>
         </div>
